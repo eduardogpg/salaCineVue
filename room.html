@@ -85,14 +85,15 @@
 
     new Vue({
       el: "#app",
+
+      created() {
+        database.ref("/sala/" + this.nSala)
+                .on('value', snapshot => this.cargarAsientos(snapshot.val()))
+      },
+
       data: {
         nSala: 1,
-        asientos: [
-          [ { id: "A1", disponible: true, purchased: false}, { id: "A2", disponible: true, purchased: false}, { id: "A3", disponible: true, purchased: false}, { id: "A4", disponible: true, purchased: false}, { id: "A5", disponible: true, purchased: false} ],
-          [ { id: "B1", disponible: true, purchased: false}, { id: "B2", disponible: true, purchased: false}, { id: "B3", disponible: true, purchased: false}, { id: "B4", disponible: true, purchased: false}, { id: "B5", disponible: true, purchased: false} ],
-          [ { id: "C1", disponible: true, purchased: false}, { id: "C2", disponible: true, purchased: false}, { id: "C3", disponible: true, purchased: false}, { id: "C4", disponible: true, purchased: false}, { id: "C5", disponible: true, purchased: false} ],
-          [ { id: "D1", disponible: true, purchased: false}, { id: "D2", disponible: true, purchased: false}, { id: "D3", disponible: true, purchased: false}, { id: "D4", disponible: true, purchased: false}, { id: "D5", disponible: true, purchased: false} ],
-        ]
+        asientos: []
       },
 
       methods: {
@@ -100,7 +101,7 @@
           this.pagarEntradas()
 
           database.ref("/sala/" + this.nSala).set(this.asientos).then(response => {
-            console.log("Entradas adquiridas!")
+             console.log("Entradas adquiridas!")
           })
         },
 
@@ -110,7 +111,10 @@
 
             if(asiento){
               if(asiento.purchased) console.log("No es posible seleccionar el asiento " + asiento.id)
-              else asiento.disponible = !asiento.disponible
+
+              asiento.disponible = !asiento.disponible
+              database.ref("/sala/" + this.nSala).set(this.asientos)
+              
               break;
             }
           }
@@ -118,13 +122,27 @@
 
         pagarEntradas: function() {
           for(let nFila in this.asientos){
-            let asientosSeleccionados = this.asientos[nFila].filter(a => !a.disponible && !a.purchased)
 
-            for(let asiento in asientosSeleccionados)
-              asiento.purchased = true
+            let fila  = this.asientos[nFila]
+            let aSeleccionados = fila.filter(a => !a.disponible && !a.purchased)
 
+            for(let nAsiento in aSeleccionados)
+                fila.find(a => a.id == aSeleccionados[nAsiento].id).purchased = true
+          }
+        },
+
+        cargarAsientos: function(asientos){
+          this.asientos = []
+
+          for(let nFila in asientos){
+            let fila = []
+            for(let nAsiento in asientos[nFila])
+              fila.push(asientos[nFila][nAsiento])
+
+            this.asientos.push(fila)
           }
         }
+
       }
     })
   </script>
