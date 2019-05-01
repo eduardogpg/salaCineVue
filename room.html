@@ -22,7 +22,10 @@
       font-weight: bold;
       color: white;
     }
-
+    .preview{
+      height: 20px;
+      width: 20px;
+    }
     .ocupado {
       background-color: #215263;
     }
@@ -40,11 +43,6 @@
     button {
       margin-top: 20px;
     }
-
-    strong{
-      color: white;
-    }
-
   </style>
   <body>
     <div id="app">
@@ -58,11 +56,21 @@
                class="col asiento"
                v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
                @click="seleccionarAsiento"
-               v-bind:id="asiento.id" v-text="asiento.id"
-          >
+               v-bind:id="asiento.id" v-text="asiento.id">
           </div>
         </div>
         <button type="button" class="btn btn-info" @click="adquirirEntradas">Comprar</button>
+        <button type="button" class="btn btn-danger" @click="liberarEntradas">Liberar</button>
+        <hr>
+          <div class="d-block">
+            <strong class="d-inline">Disponible</strong>
+            <div class="disponible preview"></div>
+          </div>
+
+          <div class="d-inline">
+            <strong class="d-inline">Ocupado</strong>
+            <div class="ocupado preview"></div>
+          </div>
       </div>
 
     </div>
@@ -101,7 +109,7 @@
           this.pagarEntradas()
 
           database.ref("/sala/" + this.nSala).set(this.asientos).then(response => {
-             console.log("Entradas adquiridas!")
+             alert("Entradas adquiridas!")
           })
         },
 
@@ -110,11 +118,10 @@
             let asiento = this.asientos[nFila].find(asiento => asiento.id === event.target.id)
 
             if(asiento){
-              if(asiento.purchased) console.log("No es posible seleccionar el asiento " + asiento.id)
-
-              asiento.disponible = !asiento.disponible
-              database.ref("/sala/" + this.nSala).set(this.asientos)
-              
+              if(asiento.purchased)
+                alert("El asiento " + asiento.id + " no esta disponible")
+              else
+                asiento.disponible = !asiento.disponible
               break;
             }
           }
@@ -126,21 +133,27 @@
             let fila  = this.asientos[nFila]
             let aSeleccionados = fila.filter(a => !a.disponible && !a.purchased)
 
-            for(let nAsiento in aSeleccionados)
-                fila.find(a => a.id == aSeleccionados[nAsiento].id).purchased = true
+            for(let nAsiento in aSeleccionados){
+                fila.find(a => a.id === aSeleccionados[nAsiento].id).purchased = true
+            }
           }
         },
 
         cargarAsientos: function(asientos){
           this.asientos = []
+          asientos.forEach((element) => this.asientos.push(element))
+        },
 
-          for(let nFila in asientos){
-            let fila = []
-            for(let nAsiento in asientos[nFila])
-              fila.push(asientos[nFila][nAsiento])
-
-            this.asientos.push(fila)
-          }
+        liberarEntradas: function(){
+          this.asientos.forEach(function(element){
+            element.forEach(function(asiento) {
+              asiento.purchased = false
+              asiento.disponible = true
+            })
+          });
+          database.ref("/sala/" + this.nSala).set(this.asientos).then(response => {
+             alert("Entradas liberadas!")
+          })
         }
 
       }
