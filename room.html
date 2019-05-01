@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  </head>
+  <style media="screen">
+
+    .pantalla {
+      background-color: #253A6F;
+      height: 30px;
+      margin-bottom: 30px;
+    }
+
+    .asiento{
+      margin: 10px;
+      cursor: pointer;
+
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .ocupado {
+      background-color: #215263;
+    }
+
+    .disponible {
+      background-color: #3E7728;
+    }
+
+    p {
+      font-size: 18px;
+      color: white;
+      font-family: 'Lato', sans-serif;
+    }
+
+    button {
+      margin-top: 20px;
+    }
+
+    strong{
+      color: white;
+    }
+
+  </style>
+  <body>
+    <div id="app">
+
+      <div class="container">
+        <div class="pantalla" align="center">
+          <p>Pantalla</p>
+        </div>
+        <div class="row" v-for="filas in asientos" align="center">
+          <div v-for="asiento in filas"
+               class="col asiento"
+               v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
+               @click="seleccionarAsiento"
+               v-bind:id="asiento.id" v-text="asiento.id"
+          >
+          </div>
+        </div>
+        <button type="button" class="btn btn-info" @click="adquirirEntrada">Comprar</button>
+      </div>
+
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.11.0/firebase.js"></script>
+
+  <script>
+    var config = {
+      apiKey: "AIzaSyD0xjkGLxE0amB27oe1vAnvqwiaQ2cQYCo",
+      authDomain: "democf-a6934.firebaseapp.com",
+      databaseURL: "https://democf-a6934.firebaseio.com",
+      projectId: "democf-a6934",
+      storageBucket: "democf-a6934.appspot.com",
+      messagingSenderId: "1053573094029"
+    };
+
+    firebase.initializeApp(config);
+    let database = firebase.database()
+
+    new Vue({
+      el: "#app",
+      data: {
+        nSala: 1,
+        asientos: [
+          [ { id: "A1", disponible: true, purchased: false}, { id: "A2", disponible: true, purchased: false}, { id: "A3", disponible: true, purchased: false}, { id: "A4", disponible: true, purchased: false}, { id: "A5", disponible: true, purchased: false} ],
+          [ { id: "B1", disponible: true, purchased: false}, { id: "B2", disponible: true, purchased: false}, { id: "B3", disponible: true, purchased: false}, { id: "B4", disponible: true, purchased: false}, { id: "B5", disponible: true, purchased: false} ],
+          [ { id: "C1", disponible: true, purchased: false}, { id: "C2", disponible: true, purchased: false}, { id: "C3", disponible: true, purchased: false}, { id: "C4", disponible: true, purchased: false}, { id: "C5", disponible: true, purchased: false} ],
+          [ { id: "D1", disponible: true, purchased: false}, { id: "D2", disponible: true, purchased: false}, { id: "D3", disponible: true, purchased: false}, { id: "D4", disponible: true, purchased: false}, { id: "D5", disponible: true, purchased: false} ],
+        ],
+        asientosSeleccionados: []
+      },
+
+      methods: {
+        adquirirEntrada: function(){
+
+        },
+
+        seleccionarAsiento: function(event){
+
+          for(let nFila in this.asientos){
+            let asiento = this.asientos[nFila].find(asiento => asiento.id === event.target.id)
+
+            if(asiento){
+              this.agregarAsiendo(asiento)
+              break;
+            }
+          }
+        },
+
+        agregarAsiendo: function(asiento){
+          if(asiento.purchased)
+            console.log("No es posible seleccionar el asiento " + asiento.id)
+
+          asiento.disponible = !asiento.disponible
+        }
+
+      }
+
+    })
+  </script>
+
+
+</html>
