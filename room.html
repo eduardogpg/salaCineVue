@@ -62,7 +62,7 @@
           >
           </div>
         </div>
-        <button type="button" class="btn btn-info" @click="adquirirEntrada">Comprar</button>
+        <button type="button" class="btn btn-info" @click="adquirirEntradas">Comprar</button>
       </div>
 
     </div>
@@ -92,36 +92,40 @@
           [ { id: "B1", disponible: true, purchased: false}, { id: "B2", disponible: true, purchased: false}, { id: "B3", disponible: true, purchased: false}, { id: "B4", disponible: true, purchased: false}, { id: "B5", disponible: true, purchased: false} ],
           [ { id: "C1", disponible: true, purchased: false}, { id: "C2", disponible: true, purchased: false}, { id: "C3", disponible: true, purchased: false}, { id: "C4", disponible: true, purchased: false}, { id: "C5", disponible: true, purchased: false} ],
           [ { id: "D1", disponible: true, purchased: false}, { id: "D2", disponible: true, purchased: false}, { id: "D3", disponible: true, purchased: false}, { id: "D4", disponible: true, purchased: false}, { id: "D5", disponible: true, purchased: false} ],
-        ],
-        asientosSeleccionados: []
+        ]
       },
 
       methods: {
-        adquirirEntrada: function(){
+        adquirirEntradas: function(){
+          this.pagarEntradas()
 
+          database.ref("/sala/" + this.nSala).set(this.asientos).then(response => {
+            console.log("Entradas adquiridas!")
+          })
         },
 
         seleccionarAsiento: function(event){
-
           for(let nFila in this.asientos){
             let asiento = this.asientos[nFila].find(asiento => asiento.id === event.target.id)
 
             if(asiento){
-              this.agregarAsiendo(asiento)
+              if(asiento.purchased) console.log("No es posible seleccionar el asiento " + asiento.id)
+              else asiento.disponible = !asiento.disponible
               break;
             }
           }
         },
 
-        agregarAsiendo: function(asiento){
-          if(asiento.purchased)
-            console.log("No es posible seleccionar el asiento " + asiento.id)
+        pagarEntradas: function() {
+          for(let nFila in this.asientos){
+            let asientosSeleccionados = this.asientos[nFila].filter(a => !a.disponible && !a.purchased)
 
-          asiento.disponible = !asiento.disponible
+            for(let asiento in asientosSeleccionados)
+              asiento.purchased = true
+
+          }
         }
-
       }
-
     })
   </script>
 
