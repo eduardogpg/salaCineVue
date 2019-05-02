@@ -56,7 +56,7 @@
         </div>
 
         <!-- Asientos -->
-        <div v-if="true" class="row">
+        <div v-if="asientosZonaA" class="row">
           <div class="col"></div>
           <div class="col-6">
             <div class="row justify-content-md-center">
@@ -73,7 +73,7 @@
         </div>
 
         <div class="row segundo">
-          <div v-if="true" class="col-3">
+          <div v-if="asientosZonaB" class="col-3">
             <div class="row justify-content-md-center">
               <div v-for="asiento in asientosZonaB"
                   class="col col-sm-4 asiento"
@@ -85,7 +85,6 @@
           </div>
           <div class="col">
             <div class="row justify-content-md-center">
-
               <div v-for="asiento in asientosZonaC"
                 class="col col-sm-2 asiento"
                 v-bind:id="asiento.id" v-text="asiento.id"
@@ -95,7 +94,7 @@
               </div>
             </div>
           </div>
-          <div v-if="true" class="col-3">
+          <div v-if="asientosZonaD" class="col-3">
             <div class="row justify-content-md-center">
               <div
                 v-for="asiento in asientosZonaD"
@@ -148,7 +147,7 @@
       },
 
       data: {
-        asientos: {},
+        asientos: {}
       },
 
       methods: {
@@ -161,8 +160,8 @@
         },
 
         seleccionarAsiento: function(event){
-          for(let nFila in this.asientos){
-            let asiento = this.asientos[nFila].find(asiento => asiento.id === event.target.id)
+          for(let zona in this.asientos){
+            let asiento = this.asientos[zona].find(a => a.id === event.target.id)
 
             if(asiento){
               if(asiento.purchased) alert("El asiento " + asiento.id + " no esta disponible")
@@ -173,14 +172,12 @@
         },
 
         pagarEntradas: function() {
-          for(let nFila in this.asientos){
+          for(let zona in this.asientos){
 
-            let fila  = this.asientos[nFila]
-            let aSeleccionados = fila.filter(a => !a.disponible && !a.purchased)
+            let seleccionados = this.asientos[zona].filter(a => !a.disponible && !a.purchased)
 
-            for(let nAsiento in aSeleccionados){
-                fila.find(a => a.id === aSeleccionados[nAsiento].id).purchased = true
-            }
+            for(let asiento in seleccionados)
+              this.asientos[zona].find(a => a.id === seleccionados[asiento].id).purchased = true
           }
         },
 
@@ -190,13 +187,18 @@
         },
 
         liberarEntradas: function(){
-          this.asientos.forEach(function(element){
-            element.forEach(function(asiento) {
+
+          for(let zona in this.asientos){
+
+            for(let nAsiento in this.asientos[zona]){
+              let asiento = this.asientos[zona][nAsiento]
+
               asiento.purchased = false
               asiento.disponible = true
-            })
-          });
-          database.ref("/sala/" + this.nSala).set(this.asientos).then(response => {
+            }
+          }
+
+          database.ref("/sala/").set(this.asientos).then(response => {
              alert("Entradas liberadas!")
           })
         }
@@ -204,7 +206,7 @@
 
       computed: {
         asientosZonaA: function() { return this.asientos.zonaA },
-        asientosZonaB: function() { return this.asientos.zonaB },
+        asientosZonaB: function() { return this.asientos.zonaBs },
         asientosZonaC: function() { return this.asientos.zonaC },
         asientosZonaD: function() { return this.asientos.zonaD },
       },
