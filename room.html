@@ -56,11 +56,11 @@
         </div>
 
         <!-- Asientos -->
-        <div v-if="zonaA" class="row">
+        <div v-if="true" class="row">
           <div class="col"></div>
           <div class="col-6">
             <div class="row justify-content-md-center">
-              <div v-for="asiento in asientos[0]"
+              <div v-for="asiento in asientosZonaA"
                     class="col col-sm-2 asiento"
                     v-bind:id="asiento.id" v-text="asiento.id"
                     @click="seleccionarAsiento"
@@ -73,9 +73,9 @@
         </div>
 
         <div class="row segundo">
-          <div v-if="zonaB" class="col-3">
+          <div v-if="true" class="col-3">
             <div class="row justify-content-md-center">
-              <div v-for="asiento in asientos[1]"
+              <div v-for="asiento in asientosZonaB"
                   class="col col-sm-4 asiento"
                   v-bind:id="asiento.id" v-text="asiento.id"
                   @click="seleccionarAsiento"
@@ -84,9 +84,9 @@
             </div>
           </div>
           <div class="col">
-            <div  class="row justify-content-md-center">
+            <div class="row justify-content-md-center">
 
-              <div v-for="asiento in asientos[2]"
+              <div v-for="asiento in asientosZonaC"
                 class="col col-sm-2 asiento"
                 v-bind:id="asiento.id" v-text="asiento.id"
                 @click="seleccionarAsiento"
@@ -95,10 +95,10 @@
               </div>
             </div>
           </div>
-          <div v-if="zonaD" class="col-3">
+          <div v-if="true" class="col-3">
             <div class="row justify-content-md-center">
               <div
-                v-for="asiento in asientos[3]"
+                v-for="asiento in asientosZonaD"
                 class="col col-sm-4 asiento"
                 v-bind:id="asiento.id" v-text="asiento.id"
                 @click="seleccionarAsiento"
@@ -144,20 +144,18 @@
       el: "#app",
 
       created() {
-        database.ref("/sala/" + this.nSala)
-                .on('value', snapshot => this.cargarAsientos(snapshot.val()))
+        database.ref("/sala/").on('value', snapshot => this.cargarAsientos(snapshot.val()))
       },
 
       data: {
-        nSala: 1,
-        asientos: [],
+        asientos: {},
       },
 
       methods: {
         adquirirEntradas: function(){
           this.pagarEntradas()
 
-          database.ref("/sala/" + this.nSala).set(this.asientos).then(response => {
+          database.ref("/sala/").set(this.asientos).then(response => {
              alert("Entradas adquiridas!")
           })
         },
@@ -167,10 +165,8 @@
             let asiento = this.asientos[nFila].find(asiento => asiento.id === event.target.id)
 
             if(asiento){
-              if(asiento.purchased)
-                alert("El asiento " + asiento.id + " no esta disponible")
-              else
-                asiento.disponible = !asiento.disponible
+              if(asiento.purchased) alert("El asiento " + asiento.id + " no esta disponible")
+              else asiento.disponible = !asiento.disponible
               break;
             }
           }
@@ -190,9 +186,7 @@
 
         cargarAsientos: function(asientos){
           if (asientos === null) return
-
-          this.asientos = []
-          asientos.forEach((element) => this.asientos.push(element))
+          this.asientos = asientos
         },
 
         liberarEntradas: function(){
@@ -209,22 +203,10 @@
       },
 
       computed: {
-        zonaA: function(){
-          return true
-        },
-
-        zonaB: function(){
-          return true
-        },
-
-        zonaC: function(){
-          return true
-        },
-
-        zonaD: function(){
-          return true
-        },
-
+        asientosZonaA: function() { return this.asientos.zonaA },
+        asientosZonaB: function() { return this.asientos.zonaB },
+        asientosZonaC: function() { return this.asientos.zonaC },
+        asientosZonaD: function() { return this.asientos.zonaD },
       },
     })
   </script>
