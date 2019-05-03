@@ -15,26 +15,37 @@
 </template>
 
 <script>
+import firebase from 'firebase';
+
 export default {
-
+  // https://firebase.google.com/docs/database/web/read-and-write?authuser=0
+  
   created: function(){
-
+    firebase.database().ref('/salas/').on('value',
+              snapshot => this.obtenerSalas(snapshot.val())
+            );
   },
 
   data() {
     return {
-      salas: [
-        { id: 1, name: 'Sala1', disponibilidad: 10, tipo: 'Normal' },
-        { id: 2, name: 'Sala2', disponibilidad: 0, tipo: 'Normal' },
-        { id: 3, name: 'Sala3', disponibilidad: 40, tipo: 'Premium' },
-      ],
+      salas: [],
     }
   },
 
   methods: {
     salaDisponible: function(sala){
       return sala.disponibilidad > 0
-    }
+    },
+
+    obtenerSalas: function(salas) {
+      this.salas = salas
+    },
+
+    crearSalas: function(){
+      firebase.database().ref("/salas/").set(this.salas).then(response => {
+         console.log('Salas creadas exitosamente!')
+      })
+    },
   }
 }
 </script>
