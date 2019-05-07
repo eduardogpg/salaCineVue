@@ -15,16 +15,18 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.config.productionTip = false
 
-const config = {
-    apiKey: "AIzaSyD0xjkGLxE0amB27oe1vAnvqwiaQ2cQYCo",
-    authDomain: "democf-a6934.firebaseapp.com",
-    databaseURL: "https://democf-a6934.firebaseio.com",
-    projectId: "democf-a6934",
-    storageBucket: "democf-a6934.appspot.com",
-    messagingSenderId: "1053573094029"
-};
-
-firebase.initializeApp(config);
+// Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDw8oum4tDUzrJdhJU87cdqlivQGGyfryY",
+    authDomain: "facilioio.firebaseapp.com",
+    databaseURL: "https://facilioio.firebaseio.com",
+    projectId: "facilioio",
+    storageBucket: "facilioio.appspot.com",
+    messagingSenderId: "860642782476",
+    appId: "1:860642782476:web:db629b87f7589693"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
 
 new Vue({
   render: h => h(App),

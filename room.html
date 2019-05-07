@@ -56,59 +56,60 @@
         </div>
 
         <!-- Asientos -->
-        <div v-if="asientosZonaA" class="row">
-          <div class="col"></div>
-          <div class="col-6">
-            <div class="row justify-content-md-center">
-              <div v-for="asiento in asientosZonaA"
-                    class="col col-sm-2 asiento"
-                    v-bind:id="asiento.id" v-text="asiento.id"
-                    @click="seleccionarAsiento"
-                    v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
-              >
+        <div>
+          <div v-if="asientosZonaA" class="row">
+            <div class="col"></div>
+            <div class="col-6">
+              <div class="row justify-content-md-center">
+                <div v-for="asiento in asientosZonaA"
+                      class="col col-sm-2 asiento"
+                      v-bind:id="asiento.id" v-text="asiento.id"
+                      @click="seleccionarAsiento"
+                      v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
+                >
+                </div>
               </div>
             </div>
+            <div class="col"></div>
           </div>
-          <div class="col"></div>
-        </div>
-
-        <div class="row segundo">
-          <div v-if="asientosZonaB" class="col-3">
-            <div class="row justify-content-md-center">
-              <div v-for="asiento in asientosZonaB"
+          <div class="row segundo">
+            <div v-if="asientosZonaB" class="col-3">
+              <div class="row justify-content-md-center">
+                <div v-for="asiento in asientosZonaB"
+                    class="col col-sm-4 asiento"
+                    v-bind:id="asiento.id" v-text="asiento.id"
+                    @click="seleccionarAsiento"
+                    v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']">
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="row justify-content-md-center">
+                <div v-for="asiento in asientosZonaC"
+                  class="col col-sm-2 asiento"
+                  v-bind:id="asiento.id" v-text="asiento.id"
+                  @click="seleccionarAsiento"
+                  v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
+                  >
+                </div>
+              </div>
+            </div>
+            <div v-if="asientosZonaD" class="col-3">
+              <div class="row justify-content-md-center">
+                <div
+                  v-for="asiento in asientosZonaD"
                   class="col col-sm-4 asiento"
                   v-bind:id="asiento.id" v-text="asiento.id"
                   @click="seleccionarAsiento"
-                  v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']">
+                  v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
+                ></div>
               </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="row justify-content-md-center">
-              <div v-for="asiento in asientosZonaC"
-                class="col col-sm-2 asiento"
-                v-bind:id="asiento.id" v-text="asiento.id"
-                @click="seleccionarAsiento"
-                v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
-                >
-              </div>
-            </div>
-          </div>
-          <div v-if="asientosZonaD" class="col-3">
-            <div class="row justify-content-md-center">
-              <div
-                v-for="asiento in asientosZonaD"
-                class="col col-sm-4 asiento"
-                v-bind:id="asiento.id" v-text="asiento.id"
-                @click="seleccionarAsiento"
-                v-bind:class="[(asiento.disponible) ? 'disponible' : 'ocupado']"
-              ></div>
             </div>
           </div>
         </div>
 
-        <button type="button" class="btn btn-info" @click="adquirirEntradas">Comprar</button>
-        <button type="button" class="btn btn-danger" @click="liberarEntradas">Liberar</button>
+        <b-button variant="succes" @click="adquirirEntradas">Comprar</button>
+        <b-button variant="danger" @click="liberarEntradas">Liberar</button>
         <hr>
           <div class="d-block">
             <strong class="d-inline">Disponible</strong>

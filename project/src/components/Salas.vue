@@ -7,7 +7,7 @@
           <router-link :to="{ name: 'sala', params: { sId: item.id }}"
             v-bind:class="{ 'disabled' : !salaDisponible(item)}"
           >
-            {{ item.id }} - Asientos disponibles: {{ item.disponibilidad }} - <strong> {{ item.tipo }}</strong>
+            Sala Número: {{ item.id }} - Asientos disponibles: {{ item.disponibilidad }} - <strong> {{ item.tipo }}</strong>
           </router-link>
       </b-list-group-item>
     </b-list-group>
@@ -19,16 +19,22 @@ import firebase from 'firebase';
 
 export default {
   // https://firebase.google.com/docs/database/web/read-and-write?authuser=0
-  
+
   created: function(){
+    //this.crearSalas()
     firebase.database().ref('/salas/').on('value',
               snapshot => this.obtenerSalas(snapshot.val())
-            );
+           );
   },
 
   data() {
     return {
       salas: [],
+      salasRespaldo : [
+        { id: 'Sala1', tipo: 'Normal', disponibilidad: 100 },
+        { id: 'Sala2', tipo: 'Normal', disponibilidad: 100 },
+        { id: 'Sala3', tipo: 'Premium', disponibilidad: 100 },
+      ]
     }
   },
 
@@ -42,7 +48,7 @@ export default {
     },
 
     crearSalas: function(){
-      firebase.database().ref("/salas/").set(this.salas).then(response => {
+      firebase.database().ref("/salas/").set(this.salasRespaldo).then(response => {
          console.log('Salas creadas exitosamente!')
       })
     },
