@@ -15,18 +15,18 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.config.productionTip = false
 
-// Your web app's Firebase configuration
-  var firebaseConfig = {
-    apiKey: "AIzaSyDw8oum4tDUzrJdhJU87cdqlivQGGyfryY",
-    authDomain: "facilioio.firebaseapp.com",
-    databaseURL: "https://facilioio.firebaseio.com",
-    projectId: "facilioio",
-    storageBucket: "facilioio.appspot.com",
-    messagingSenderId: "860642782476",
-    appId: "1:860642782476:web:db629b87f7589693"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
+// npm install --save firebase
+var firebaseConfig = {
+    apiKey: "AIzaSyDj7BOLzFxVPL1jg0B3SWYK4VBk_ljvCMo",
+    authDomain: "taller2-43f48.firebaseapp.com",
+    databaseURL: "https://taller2-43f48.firebaseio.com",
+    projectId: "taller2-43f48",
+    storageBucket: "taller2-43f48.appspot.com",
+    messagingSenderId: "306110492418",
+    appId: "1:306110492418:web:b7bc3366c34486f4"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
 new Vue({
   render: h => h(App),
