@@ -13,8 +13,9 @@
           @click="checkSeat"
           v-bind:id="seat.id"
           v-text="seat.id"
-          v-bind:class="[(seat.available) ? 'available' : 'unavailable']"
+          v-bind:class="{ available: seat.available, 'unavailable': !seat.available, 'selected': canSelected(seat) }">
           >
+          <!-- v-bind:class="[(seat.available) ? 'available' : 'unavailable', 'selected': canSelected(seat)]" -->
         </div>
       </div>
     </div>
@@ -32,21 +33,25 @@
 import firebase from 'firebase';
 import Vue from 'vue'
 
-const path = 'sala'
+const path = 'salas'
 const pathId = '1'
 
 export default {
 
   created(){
-    // this.updateSeats()
+    //this.updateSeats()
+
+    this.id = firebase.database().ref('/users').push().key
+
     firebase.database().ref(path).child(pathId).on('value',
           snapshot => this.loadSeats(snapshot.val())
-        );
+    );
   },
 
   data() {
     return {
       seats: [],
+      id: ''
     }
   },
 
@@ -59,14 +64,18 @@ export default {
     checkSeat: function(event){
       let seat = this.seats.find(s => s.id == event.target.id)
 
-      if(seat.purchased){
-        console.error("No es posible seleccionar el asiento " + seat.id)
+      if(seat.purchased || !this.canSelected(seat)){
+        this.$notify(
+          { group: 'foo', type:'error', title: 'Error', text: 'No es posible seleccionar el asiento'}
+        )
         return
       }
 
       seat.available = !seat.available
+      seat.user_id = this.id
 
       this.updateSeats()
+
     },
 
     updateSeats: function(){
@@ -76,25 +85,29 @@ export default {
     getSeats: function(){
       firebase.database().ref(path).child(pathId).transaction(
         seatsDB => this.buyTickets(seatsDB),
-        function(error, commited, snapshot){
+        (error, commited, snapshot) => this.validateResponse(error, commited, snapshot)
+      )
+    },
 
-          if(error)
-            console.error(error)
+    validateResponse: function(error, commited, snapshot){
+      if(error){
+        this.$notify(
+          { group: 'foo', type:'error', title: 'Error', text: 'No es posible adquirir las entradas'}
+        )
+      }
 
-          if (commited)
-            console.log("Datos persistidos!")
-
-        })
+      if(commited){
+        this.$notify(
+            { group: 'foo', type:'success', title: 'Exito', text: 'Entradas aquiridas exitosamente'}
+        )
+      }
     },
 
     buyTickets: function(seatsDB){
-
       this.seats.forEach(function(seat){
         if(!seat.available && !seat.purchased){
-
           if (seatsDB.find(a => a.id == seat.id).purchased)
             return
-
           seat.purchased = true
         }
       })
@@ -106,11 +119,15 @@ export default {
       this.seats.forEach(function(element){
         element.purchased = false
         element.available = true
+        element.user_id = null
       })
 
       this.updateSeats()
     },
 
+    canSelected: function(seat){
+      return (seat.user_id == null || seat.user_id == this.id)
+    }
   },
 
   computed: {
@@ -127,11 +144,13 @@ export default {
   }
 
   .seat {
-    cursor: pointer;
     color: white;
     margin: 3px;
     font-weight: bold;
+  }
 
+  .selected{
+    cursor: pointer;
   }
 
   .seats{
