@@ -6,13 +6,8 @@ import VueRouter from 'vue-router'
 const routes = [
   {
     path: '/',
-    component: Salas,
-  },
-  {
-    path: '/sala/:sId',
-    name: 'sala',
     component: Sala,
-  }
+  },
 ]
 
 const router = new VueRouter({

@@ -3,12 +3,15 @@ import App from './App.vue'
 
 import VueRouter from 'vue-router'
 import BootstrapVue from 'bootstrap-vue'
-import firebase from 'firebase';
+import Notifications from 'vue-notification'
 
+import firebase from 'firebase';
 import router from './routers.js'
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
+Vue.use(Notifications)
+
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
