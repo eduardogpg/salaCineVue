@@ -10,20 +10,24 @@
       <div class="row justify-content-md-center">
         <div class="col seat"
           v-for="seat in seats"
-          @click="checkSeat"
+          @click="selectSeat"
           v-bind:id="seat.id"
           v-text="seat.id"
-          v-bind:class="{ available: seat.available, 'unavailable': !seat.available, 'selected': canSelected(seat) }">
+          v-bind:class="{ available: seat.available, 'unavailable': !seat.available, 'selected': availableSelect(seat) }">
           >
-          <!-- v-bind:class="[(seat.available) ? 'available' : 'unavailable', 'selected': canSelected(seat)]" -->
+          <!-- v-bind:class="[(seat.available) ? 'available' : 'unavailable', 'selected': availableSelect(seat)]" -->
         </div>
       </div>
     </div>
 
     <div class="buttons">
-      <b-button variant="success" style="margin-right:10px;" @click="getSeats">Adquir</b-button>
-      <b-button variant="danger" style="margin-right:10px;"> Cancelar</b-button>
+      <b-button variant="success" style="margin-right:10px;">Adquir</b-button>
+      <b-button variant="danger" style="margin-right:10px;" @click="cancel"> Cancelar</b-button>
       <b-button @click="cleanSeats">Limpiar</b-button>
+    </div>
+
+    <div style="margin-top:20px">
+      <strong >Asientos seleccionados {{ count }}</strong>
     </div>
 
   </div>
@@ -38,6 +42,14 @@ const pathId = '1'
 
 export default {
 
+  data() {
+    return {
+      seats: [],
+      id: '',
+      count: 0
+    }
+  },
+
   created(){
     //this.updateSeats()
 
@@ -48,23 +60,16 @@ export default {
     );
   },
 
-  data() {
-    return {
-      seats: [],
-      id: ''
-    }
-  },
-
   methods: {
 
     loadSeats: function(seats){
       this.seats = seats
     },
 
-    checkSeat: function(event){
+    selectSeat: function(event){
       let seat = this.seats.find(s => s.id == event.target.id)
 
-      if(seat.purchased || !this.canSelected(seat)){
+      if(seat.purchased || !this.availableSelect(seat)){
         this.$notify(
           { group: 'foo', type:'error', title: 'Error', text: 'No es posible seleccionar el asiento'}
         )
@@ -76,43 +81,20 @@ export default {
 
       this.updateSeats()
 
+      this.count = this.selectedSeats().length
+    },
+
+    cancel: function(){
+      let selectedSeats = this.selectedSeats()
+
+      for(let pos in selectedSeats)
+        selectedSeats.find(s => s.id == selectedSeats[pos].id).available = true
+      
+      this.updateSeats()
     },
 
     updateSeats: function(){
       return firebase.database().ref(path).child(pathId).set(this.seats, function(error){} );
-    },
-
-    getSeats: function(){
-      firebase.database().ref(path).child(pathId).transaction(
-        seatsDB => this.buyTickets(seatsDB),
-        (error, commited, snapshot) => this.validateResponse(error, commited, snapshot)
-      )
-    },
-
-    validateResponse: function(error, commited, snapshot){
-      if(error){
-        this.$notify(
-          { group: 'foo', type:'error', title: 'Error', text: 'No es posible adquirir las entradas'}
-        )
-      }
-
-      if(commited){
-        this.$notify(
-            { group: 'foo', type:'success', title: 'Exito', text: 'Entradas aquiridas exitosamente'}
-        )
-      }
-    },
-
-    buyTickets: function(seatsDB){
-      this.seats.forEach(function(seat){
-        if(!seat.available && !seat.purchased){
-          if (seatsDB.find(a => a.id == seat.id).purchased)
-            return
-          seat.purchased = true
-        }
-      })
-
-      return this.seats
     },
 
     cleanSeats: function(){
@@ -125,8 +107,12 @@ export default {
       this.updateSeats()
     },
 
-    canSelected: function(seat){
+    availableSelect: function(seat){
       return (seat.user_id == null || seat.user_id == this.id)
+    },
+
+    selectedSeats: function() {
+      return this.seats.filter(a => !a.available && !a.purchased && a.user_id == this.id)
     }
   },
 
