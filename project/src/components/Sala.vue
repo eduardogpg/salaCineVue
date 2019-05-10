@@ -10,20 +10,20 @@
       <div class="row justify-content-md-center">
         <div class="col seat"
           v-for="seat in seats"
-          @click="selectSeat"
+          @click="selectElement"
           v-bind:id="seat.id"
           v-text="seat.id"
-          v-bind:class="{ available: seat.available, 'unavailable': !seat.available, 'selected': availableSelect(seat) }">
+          v-bind:class="{ available: seat.available, 'unavailable': !seat.available, 'selected': availableToSelection(seat) }">
           >
-          <!-- v-bind:class="[(seat.available) ? 'available' : 'unavailable', 'selected': availableSelect(seat)]" -->
+          <!-- v-bind:class="[(seat.available) ? 'available' : 'unavailable', 'selected': availableToSelection(seat)]" -->
         </div>
       </div>
     </div>
 
     <div class="buttons">
-      <b-button variant="success" style="margin-right:10px;">Adquir</b-button>
-      <b-button variant="danger" style="margin-right:10px;" @click="cancel"> Cancelar</b-button>
-      <b-button @click="cleanSeats">Limpiar</b-button>
+      <b-button :disabled="!anyElementSelected" variant="success" style="margin-right:10px;" @click="purchase">Adquir</b-button>
+      <b-button :disabled="!anyElementSelected" variant="danger" style="margin-right:10px;" @click="cancel"> Cancelar</b-button>
+      <b-button @click="cleanData">Limpiar</b-button>
     </div>
 
     <div style="margin-top:20px">
@@ -51,25 +51,25 @@ export default {
   },
 
   created(){
-    //this.updateSeats()
+    //this.updateElements()
 
     this.id = firebase.database().ref('/users').push().key
 
     firebase.database().ref(path).child(pathId).on('value',
-          snapshot => this.loadSeats(snapshot.val())
+          snapshot => this.loadData(snapshot.val())
     );
   },
 
   methods: {
 
-    loadSeats: function(seats){
-      this.seats = seats
+    loadData: function(data){
+      this.seats = data
     },
 
-    selectSeat: function(event){
+    selectElement: function(event){
       let seat = this.seats.find(s => s.id == event.target.id)
 
-      if(seat.purchased || !this.availableSelect(seat)){
+      if(seat.purchased || !this.availableToSelection(seat)){
         this.$notify(
           { group: 'foo', type:'error', title: 'Error', text: 'No es posible seleccionar el asiento'}
         )
@@ -79,45 +79,80 @@ export default {
       seat.available = !seat.available
       seat.user_id = this.id
 
-      this.updateSeats()
-
-      this.count = this.selectedSeats().length
+      this.updateElements()
+      this.count = this.selectedElements().length
     },
 
     cancel: function(){
-      let selectedSeats = this.selectedSeats()
-
-      for(let pos in selectedSeats)
-        selectedSeats.find(s => s.id == selectedSeats[pos].id).available = true
-      
-      this.updateSeats()
-    },
-
-    updateSeats: function(){
-      return firebase.database().ref(path).child(pathId).set(this.seats, function(error){} );
-    },
-
-    cleanSeats: function(){
-      this.seats.forEach(function(element){
-        element.purchased = false
-        element.available = true
-        element.user_id = null
+      this.selectedElements().forEach(function(seat){
+        seat.available = true
+        seat.user_id = null
       })
 
-      this.updateSeats()
+      this.updateElements()
+      this.count = this.selectedElements().length
     },
 
-    availableSelect: function(seat){
-      return (seat.user_id == null || seat.user_id == this.id)
+    purchase: function(){
+      // this.selectedElements().forEach(function(seat){
+      //   seat.purchased = true
+      // })
+      firebase.database()
+      .ref(path)
+      .child(pathId)
+      .transaction(dataDB => this.validatePurchase(dataDB),
+                  (error, committed, snapshot) => this.validateTransaction(error, committed, snapshot));
     },
 
-    selectedSeats: function() {
+    validateTransaction: function(error, committed, snapshot){
+      if(committed){
+        this.$notify(
+          { group: 'foo', type:'success', title: 'Exito', text: 'Entradas adquiridas'}
+        )
+      }
+    },
+
+    validatePurchase: function(dataDB){
+      this.selectedElements().forEach(function(seat){
+        if(dataDB.find(s => s.id == seat.id).purchased)
+          return
+
+        seat.purchased = true
+      })
+
+      return this.seats
+    },
+
+    updateElements: function(){
+      firebase.database().ref(path).child(pathId).set(this.seats, function(error){
+        if(error)
+            console.error("No es posible completar la transacción")
+      });
+    },
+
+    cleanData: function(){
+      this.seats.forEach(function(seat){
+        seat.purchased = false
+        seat.available = true
+        seat.user_id = null
+      })
+
+      this.updateElements()
+      this.count = this.selectedElements().length
+    },
+
+    availableToSelection: function(seat){
+      return (seat.user_id == null || seat.user_id == this.id) && !seat.purchased
+    },
+
+    selectedElements: function() {
       return this.seats.filter(a => !a.available && !a.purchased && a.user_id == this.id)
-    }
+    },
+
   },
 
   computed: {
-
+    anyElementSelected: function() { return this.count > 0 },
   },
 
 }
