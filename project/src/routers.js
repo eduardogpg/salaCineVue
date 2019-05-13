@@ -1,5 +1,4 @@
 import Sala from './components/Sala.vue'
-import Salas from './components/Salas.vue'
 
 import VueRouter from 'vue-router'
 

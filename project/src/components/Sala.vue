@@ -46,12 +46,12 @@ export default {
     return {
       seats: [],
       id: '',
-      count: 0
+      count: 0,
     }
   },
 
   created(){
-    //this.updateElements()
+    console.log(process.env.VUE_APP_SECRET_KEY)
 
     this.id = firebase.database().ref('/users').push().key
 
