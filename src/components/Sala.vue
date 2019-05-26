@@ -39,25 +39,22 @@ const pathId = '1'
 
 export default {
   created(){
-    this.actualizarElementos()
-    /*
+    //this.actualizarElementos()
+
     this.id = firebase.database().ref('/users').push().key
 
     firebase.database()
     .ref(path)
     .child(pathId)
     .on('value', snapshot => this.cargarElementos(snapshot.val()) )
-    */
+
   },
 
   data(){
     return {
       id: '',
       contador: 0,
-      asientos: [
-        {id: 'A1', disponible: true, purchased: false}, {id: 'A2', disponible: true, purchased: false}, {id: 'A3', disponible: true, purchased: false}, {id: 'A4', disponible: true, purchased: false}, {id: 'A5', disponible: true, purchased: false},
-        {id: 'A6', disponible: true, purchased: false}, {id: 'A7', disponible: true, purchased: false}, {id: 'A8', disponible: true, purchased: false}, {id: 'A9', disponible: true, purchased: false}, {id: 'A10', disponible: true, purchased: false},
-      ]
+      asientos: []
     }
   },
 
